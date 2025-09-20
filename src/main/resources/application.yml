@@ -25,3 +25,11 @@ spring:
           predicates:
             - Path=/recommend/**
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
