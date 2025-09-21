@@ -27,8 +27,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 
 	// Gateway (WebFlux 기반)
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+	implementation 'org.springframework.cloud:spring-cloud-starter-gateway-server-webflux'
 
 	// 모니터링
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -38,6 +37,17 @@ dependencies {
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// jwt
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.4'
+	runtimeOnly   'io.jsonwebtoken:jjwt-impl:0.12.4'
+	runtimeOnly   'io.jsonwebtoken:jjwt-jackson:0.12.4'
+
+	//lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 dependencyManagement {
