@@ -42,7 +42,7 @@ public class JwtFilter implements GlobalFilter, Ordered {
                 return exchange.getResponse().setComplete();
             }
         } catch (Exception e) {
-            log.error("JWT 검증 실패", e);
+            log.error("JWT 검증 실패", e.getMessage());
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }

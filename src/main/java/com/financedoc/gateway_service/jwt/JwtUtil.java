@@ -29,13 +29,16 @@ public class JwtUtil {
             Date expiration = claims.getExpiration();
 
             if (expiration == null) {
-                throw new RuntimeException(token + "is expired.");
+                throw new RuntimeException(token + " has no expiration.");
             }
 
             return expiration.before(new Date());
 
         } catch (ExpiredJwtException e) {
             return true;
+        } catch (Exception e) {
+            // 여기서 모든 검증 실패를 잡아서 다시 던짐
+            throw new RuntimeException("유효하지 않은 JWT token", e);
         }
     }
 
