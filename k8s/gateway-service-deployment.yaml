@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gateway-service
+  template:
+    metadata:
+      labels:
+        app: gateway-service
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: gateway-service
+          image: financedoc.kr.ncr.ntruss.com/gateway-service:latest
+          ports:
+            - containerPort: 8080
