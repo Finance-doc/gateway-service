@@ -6,25 +6,24 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class JwtFilter implements GlobalFilter, Ordered {
+public class JwtFilter implements WebFilter {
 
     private final JwtUtil jwtUtil;
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 
         // CORS 프리플라이트는 바로 통과
         HttpMethod method = exchange.getRequest().getMethod();
@@ -35,6 +34,17 @@ public class JwtFilter implements GlobalFilter, Ordered {
         String path = exchange.getRequest().getPath().value();
         String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
         log.info("[JwtFilter] 요청 path={}, Authorization={}", path, authHeader);
+
+        // 화이트리스트 경로 예외 처리
+        if (path.startsWith("/actuator/health") ||
+                path.startsWith("/test-token") ||
+                path.startsWith("/user/auth/") ||
+                path.startsWith("/swagger-ui") ||
+                path.startsWith("/v3/api-docs") ||
+                path.startsWith("/error")) {
+            log.info("[JwtFilter] 통과 path={}", path);
+            return chain.filter(exchange);
+        }
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             log.warn("[JwtFilter] Authorization 헤더 없음 또는 Bearer 형식 아님");
@@ -74,10 +84,5 @@ public class JwtFilter implements GlobalFilter, Ordered {
         }
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
         return exchange.getResponse().setComplete();
-    }
-
-    @Override
-    public int getOrder() {
-        return -1; // 먼저 실행
     }
 }

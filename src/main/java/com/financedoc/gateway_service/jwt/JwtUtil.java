@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -32,34 +34,34 @@ public class JwtUtil {
     }
 
     private String ensureBase64(String value) {
-        boolean looksBase64 = value.matches("^[A-Za-z0-9+/=]+$");
-        if (!looksBase64) {
-            return java.util.Base64.getEncoder().encodeToString(value.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-        }
-        return value;
+        if (value == null) return "";
+        boolean looksBase64 = value.matches("^[A-Za-z0-9+/=]+={0,2}$");
+        return looksBase64 ? value
+                : Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String createAccessToken(String subject, Map<String, Object> claims) {
+    public String createAccessToken(String userId, Map<String, Object> extraClaims) {
+        Map<String, Object> claims = (extraClaims == null) ? new HashMap<>() : new HashMap<>(extraClaims);
+        claims.putIfAbsent("user_id", userId);
+        claims.put("category", "access");
+
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + accessTokenValidityMs);
-        return buildToken(subject, claims, now, expiry);
-    }
+        Date exp = new Date(now.getTime() + accessTokenValidityMs);
 
-    private String buildToken(String subject, Map<String, Object> claims, Date issuedAt, Date expiry) {
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(issuedAt)
-                .setExpiration(expiry)
+                .setSubject(userId)
+                .setIssuedAt(now)
+                .setExpiration(exp)
                 .signWith(secretKey)
                 .compact();
     }
 
     public Claims parseClaims(String token) {
-        return Jwts.parser()              // ← parserBuilder()가 아니라 parser()
-                .verifyWith(secretKey)    // ← setSigningKey(...) 대신 verifyWith(Key)
+        return Jwts.parser()              // parserBuilder() 아님
+                .verifyWith(secretKey)    // setSigningKey(...) 대신 verifyWith(Key)
                 .build()
-                .parseSignedClaims(token) // ← parseClaimsJws(...) → parseSignedClaims(...)
+                .parseSignedClaims(token)
                 .getPayload();
     }
 }
