@@ -17,28 +17,24 @@ spring:
                 - Path=/user/**
               filters:
                 - RemoveRequestHeader=Cookie
-                - AddRequestHeader=X-User-Id, #{request.headers['X-User-Id']}
             - id: report-service
               uri: http://report-service-service.default.svc.cluster.local:80
               predicates:
                 - Path=/report/**
               filters:
                 - RemoveRequestHeader=Cookie
-                - AddRequestHeader=X-User-Id, #{request.headers['X-User-Id']}
             - id: edu-service
               uri: http://edu-service-service.default.svc.cluster.local:80
               predicates:
                 - Path=/edu/**
               filters:
                 - RemoveRequestHeader=Cookie
-                - AddRequestHeader=X-User-Id, #{request.headers['X-User-Id']}
             - id: recommend-service
               uri: http://recommend-service-service.default.svc.cluster.local:80
               predicates:
                 - Path=/recommend/**
               filters:
                 - RemoveRequestHeader=Cookie
-                - AddRequestHeader=X-User-Id, #{request.headers['X-User-Id']}
 
 management:
   endpoints:
