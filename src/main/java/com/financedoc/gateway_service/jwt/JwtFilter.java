@@ -41,6 +41,7 @@ public class JwtFilter implements WebFilter {
                 path.startsWith("/user/auth/") ||
                 path.startsWith("/swagger-ui") ||
                 path.startsWith("/v3/api-docs") ||
+                path.startsWith("/user/test/login") ||
                 path.startsWith("/error")) {
             log.info("[JwtFilter] 통과 path={}", path);
             return chain.filter(exchange);
